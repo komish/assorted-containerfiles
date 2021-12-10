@@ -1,0 +1,16 @@
+FROM docker.io/node:latest as builder
+
+# service user
+RUN useradd -c 'created via Containerfile' -m hackmd-cli \
+  && mkdir /home/hackmd-cli/.hackmd
+
+# support arbitrary UIDs in OpenShift
+RUN chgrp -R 0 /home/hackmd-cli && \
+    chmod -R g=u /home/hackmd-cli
+
+RUN npm install -g @hackmd/hackmd-cli
+
+USER hackmd-cli
+WORKDIR /home/hackmd-cli
+
+ENTRYPOINT [ "hackmd-cli" ]
