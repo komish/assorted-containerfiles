@@ -24,7 +24,7 @@ Swap out any configuration such as `containertool` or the image path as necessar
 The container runtime command looks something like this:
 
 ```
-$containertool run --rm -v /home/yourusername/.config/hackmd:/home/hackmd-cli/.hackmd:z  hackmd-cli:latest
+$containertool run --rm -v /home/yourusername/.config/hackmd:/opt/app-root/src/.hackmd:z  hackmd-cli:latest
 ```
 
 The mounted volume allows for `hackmd-cli` to store authentication cookies on your host across executions.
@@ -33,14 +33,14 @@ Swap out your username or desired path as you see fit.
 You can run this as an alias.
 
 ```
-alias hackmd-cli="$containertool run --rm -v /home/yourusername/.config/hackmd:/home/hackmd-cli/.hackmd:z  hackmd-cli:latest"
+alias hackmd-cli="$containertool run --rm -v /home/yourusername/.config/hackmd:/opt/app-root/src/.hackmd:z  hackmd-cli:latest"
 ```
 
 For importing files using the STDIN, you'll need the interactive mode enabled using the `-i` flag. For this
 reason, we suggest two aliases.
 
 ```
-alias hackmd-cli-import="$containertool run -i --rm -v /home/yourusername/.config/hackmd:/home/hackmd-cli/.hackmd:z  hackmd-cli:latest"
+alias hackmd-cli-import="$containertool run -i --rm -v /home/yourusername/.config/hackmd:/opt/app-root/src/.hackmd:z  hackmd-cli:latest"
 ```
 
 ## Samples

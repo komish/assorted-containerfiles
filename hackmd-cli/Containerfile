@@ -1,16 +1,24 @@
-FROM docker.io/node:latest as builder
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 
-# service user
-RUN useradd -c 'created via Containerfile' -m hackmd-cli \
-  && mkdir /home/hackmd-cli/.hackmd
+ENV APP_ROOT=/opt/app-root \
+    HOME=/opt/app-root/src \
+    NODEJS_VERSION=16
 
-# support arbitrary UIDs in OpenShift
-RUN chgrp -R 0 /home/hackmd-cli && \
-    chmod -R g=u /home/hackmd-cli
+# If this is included in the previous ENV declaration
+# $HOME doesn't seem to resolve. 
+ENV PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:$PATH
 
-RUN npm install -g @hackmd/hackmd-cli
+RUN INSTALL_PKGS="nodejs npm findutils tar" && \
+    echo -e "[nodejs]\nname=nodejs\nstream=$NODEJS_VERSION\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module && \
+    microdnf --nodocs install $INSTALL_PKGS && \
+    microdnf clean all && \
+    rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
 
-USER hackmd-cli
-WORKDIR /home/hackmd-cli
+# Drop the root user and make the content of /opt/app-root owned by user 1001
+RUN mkdir -p "$HOME" && mkdir ~/.hackmd && chown -R 1001:0 "$APP_ROOT" && chmod -R ug+rwx "$APP_ROOT"
+WORKDIR "$HOME"
 
+RUN npm install @hackmd/hackmd-cli
+
+USER 1001
 ENTRYPOINT [ "hackmd-cli" ]
