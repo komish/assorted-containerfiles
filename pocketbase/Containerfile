@@ -1,0 +1,19 @@
+FROM registry.access.redhat.com/ubi9/ubi:latest as extractor
+# VERSION: E.g. 0.0.1, mapping to https://github.com/pocketbase/pocketbase/releases/tag/
+ARG VERSION
+ARG TARGETOS
+ARG TARGETARCH
+
+RUN echo output $VERSION $TARGETOS $TARGETARCH
+RUN dnf install -y wget unzip
+RUN wget "https://github.com/pocketbase/pocketbase/releases/download/v${VERSION}/pocketbase_${VERSION}_${TARGETOS}_${TARGETARCH}.zip"
+RUN unzip pocketbase_${VERSION}_${TARGETOS}_${TARGETARCH}.zip
+RUN ls -lah
+
+FROM registry.access.redhat.com/ubi9/ubi-micro:latest
+RUN mkdir /pocketbase && chown 1001:1001 /pocketbase
+USER 1001
+WORKDIR /pocketbase
+COPY --from=extractor pocketbase /usr/local/bin/
+ENTRYPOINT [ "pocketbase" ]
+
