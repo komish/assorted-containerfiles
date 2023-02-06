@@ -1,0 +1,14 @@
+FROM quay.io/fedora/fedora:38
+# VERSION: E.g. 0.0.1, mapping to https://github.com/coder/code-server/releases
+ARG VERSION
+ARG TARGETARCH
+
+RUN echo output $VERSION $TARGETOS $TARGETARCH
+RUN curl -fOL "https://github.com/coder/code-server/releases/download/v${VERSION}/code-server-$VERSION-$TARGETARCH.rpm"
+RUN sudo rpm -i code-server-$VERSION-$TARGETARCH.rpm
+RUN adduser coder \
+  && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd
+
+USER coder
+WORKDIR /home/coder
+ENTRYPOINT [ "bash" ]
